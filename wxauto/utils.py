@@ -15,6 +15,8 @@ import logging
 import time
 import os
 import re
+import random
+import time
 
 VERSION = "3.9.8.15"
 
@@ -353,3 +355,9 @@ def set_debug(debug: bool):
     else:
         wxlog.setLevel(logging.INFO)
         console_handler.setLevel(logging.INFO)
+
+
+def random_sleep():
+    """随机sleep 1到5秒"""
+    sleep_time = random.uniform(1, 5)  # 生成1到5之间的随机浮点数
+    time.sleep(sleep_time)  # 休眠指定的秒数

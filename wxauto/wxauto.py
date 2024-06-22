@@ -446,7 +446,7 @@ class WeChat(WeChatBase):
                 if time.time() - t0 > 10:
                     raise TimeoutError(f'发送文件超时 --> {filelist}')
                 SetClipboardFiles(filelist)
-                time.sleep(0.2)
+                random_sleep()
                 editbox.SendKeys('{Ctrl}v')
                 if editbox.GetValuePattern().Value:
                     break
@@ -578,6 +578,7 @@ class WeChat(WeChatBase):
     #     files.Close()
 
     def GroupPageAddMember(self,who):
+        random_sleep()
         ele = self.ChatBox.PaneControl(searchDepth=7, foundIndex=6).ButtonControl(Name='聊天信息')
         try:
             uia.SetGlobalSearchTimeout(1)
@@ -587,6 +588,7 @@ class WeChat(WeChatBase):
             return
         finally:
             uia.SetGlobalSearchTimeout(10)
+        random_sleep()
         group_members_win = self.UiaAPI.ListControl(Name='聊天成员')
         if not group_members_win.Exists():
             return
@@ -601,7 +603,7 @@ class WeChat(WeChatBase):
             pass
         finally:
             uia.SetGlobalSearchTimeout(10)
-        time.sleep(2)
+        random_sleep()
         AddMemberWnd = self.UiaAPI.WindowControl(ClassName='AddMemberWnd', searchDepth=5)
         #self.PrintWindowInfo(AddMemberWnd)
         SearchEdit = AddMemberWnd.EditControl(Name='搜索',searchDepth=10)
@@ -609,6 +611,7 @@ class WeChat(WeChatBase):
             #SetClipboardText(who)
             uia.SetGlobalSearchTimeout(1)
             rect = SearchEdit.BoundingRectangle
+            random_sleep()
             Click(rect)
             SearchEdit.SendKeys(who, waitTime=1.5)
         except:
@@ -622,12 +625,14 @@ class WeChat(WeChatBase):
             bottom_finish = AddMemberWnd.ButtonControl(Name="完成", searchDepth=10)
             #if bottom_finish.
             if bottom_finish.Exists() and bottom_finish.IsEnabled and not bottom_finish.IsOffscreen:
+                random_sleep()
                 bottom_finish.Click(simulateMove=False)
             else:
                 print("按钮[完成]无法点击")
 
             bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
             if bottom_quit.IsEnabled:
+                random_sleep()
                 bottom_quit.Click(simulateMove=False)
             else:
                 print("按钮[取消]无法点击")
@@ -635,6 +640,7 @@ class WeChat(WeChatBase):
         except Exception as e:
             bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
             if bottom_quit.IsEnabled:
+                random_sleep()
                 bottom_quit.Click(simulateMove=False)
             else:
                 print("按钮[取消]无法点击")
@@ -906,7 +912,7 @@ class WeChatFiles:
                 itemfileslist.append(item[i].Name)
                 self.itemfiles = item[i]
                 self.itemfiles.Click()
-                time.sleep(0.5)
+                random_sleep()
             except:
                 pass
 
