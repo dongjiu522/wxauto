@@ -6,7 +6,7 @@ import datetime
 import time
 import os
 import re
-
+import pyautogui
 
 
 class WxParam:
@@ -574,8 +574,12 @@ class NewFriendsElement:
                 NewFriendsWnd.PaneControl(ClassName='DropdownWindow').TextControl().Click(simulateMove=False)
 
         NewFriendsWnd.ButtonControl(Name='确定').Click(simulateMove=False)
+        time.sleep(2)
+        self.Status.RightClick()
 
-
+        pyautogui.move(10, 10, duration=0.5)
+        time.sleep(2)
+        pyautogui.click()
 class ContactWnd:
     def __init__(self):
         self.UiaAPI = uia.WindowControl(ClassName='ContactManagerWindow', searchDepth=1)

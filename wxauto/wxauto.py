@@ -13,6 +13,8 @@ from .color import *
 import time
 import os
 import re
+import pyautogui
+
 try:
     from typing import Literal
 except:
@@ -286,7 +288,21 @@ class WeChat(WeChatBase):
                 chatname = target_control.Name
                 target_control.Click(simulateMove=False)
                 return chatname
-    
+
+    def addMemberToGroup(self,who,wx_id,groupName):
+        member_name = who
+        if wx_id:
+            member_name = wx_id
+
+        self._show()
+
+        self.ChatWith(groupName)
+
+        self.GroupPageAddMember(member_name)
+
+
+
+
     def AtAll(self, msg=None, who=None):
         """@所有人
         
@@ -560,6 +576,106 @@ class WeChat(WeChatBase):
     #     files.ChatWithFile(who)
     #     files.DownloadFiles(who, amount)
     #     files.Close()
+
+    def GroupPageAddMember(self,who):
+        ele = self.ChatBox.PaneControl(searchDepth=7, foundIndex=6).ButtonControl(Name='聊天信息')
+        try:
+            uia.SetGlobalSearchTimeout(1)
+            rect = ele.BoundingRectangle
+            Click(rect)
+        except:
+            return
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        group_members_win = self.UiaAPI.ListControl(Name='聊天成员')
+        if not group_members_win.Exists():
+            return
+        #self.PrintWindowInfo(group_members_win)
+        addBottom = self.UiaAPI.ListItemControl(Name='添加', searchDepth=10)
+        #self.PrintWindowInfo(addWnd)
+        try:
+            uia.SetGlobalSearchTimeout(1)
+            rect = addBottom.BoundingRectangle
+            Click(rect)
+        except:
+            pass
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        time.sleep(2)
+        AddMemberWnd = self.UiaAPI.WindowControl(ClassName='AddMemberWnd', searchDepth=5)
+        #self.PrintWindowInfo(AddMemberWnd)
+        SearchEdit = AddMemberWnd.EditControl(Name='搜索',searchDepth=10)
+        try:
+            #SetClipboardText(who)
+            uia.SetGlobalSearchTimeout(1)
+            rect = SearchEdit.BoundingRectangle
+            Click(rect)
+            SearchEdit.SendKeys(who, waitTime=1.5)
+        except:
+            pass
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        #self.PrintWindowInfo(AddMemberWnd)
+        try:
+            AddMemberWnd.ListItemControl(Name=who).Click(simulateMove=False)
+            #self.PrintWindowInfo(AddMemberWnd)
+            bottom_finish = AddMemberWnd.ButtonControl(Name="完成", searchDepth=10)
+            #if bottom_finish.
+            if bottom_finish.Exists() and bottom_finish.IsEnabled and not bottom_finish.IsOffscreen:
+                bottom_finish.Click(simulateMove=False)
+            else:
+                print("按钮[完成]无法点击")
+
+            bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
+            if bottom_quit.IsEnabled:
+                bottom_quit.Click(simulateMove=False)
+            else:
+                print("按钮[取消]无法点击")
+                pyautogui.press('esc')
+        except Exception as e:
+            bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
+            if bottom_quit.IsEnabled:
+                bottom_quit.Click(simulateMove=False)
+            else:
+                print("按钮[取消]无法点击")
+                pyautogui.press('esc')
+
+
+    def PrintWindowInfo(self, element, depth=0):
+        # 定义树形结构的缩进符号
+        tree_symbols = {
+            0: "",  # 根节点不需要前缀符号
+            1: "├─ ",  # 第一级子节点前缀符号
+            2: "├─ ",  # 第二级及以上子节点前缀符号
+        }
+
+        # 打印当前控件的信息
+        indent = "    " * depth
+        prefix = tree_symbols.get(depth, "│   ")  # 根据深度选择前缀符号
+        print(f"{indent}{prefix}Control Type: {element.ControlType}-{element.ControlTypeName}")
+        print(f"{indent}{prefix}depth: {depth}")
+        print(f"{indent}{prefix}Name: {element.Name}")
+        print(f"{indent}{prefix}ClassName: {element.ClassName}")
+        print(f"{indent}{prefix}AutomationId: {element.AutomationId}")
+        print(f"{indent}{prefix}BoundingRectangle: {element.BoundingRectangle}")
+
+        # # 获取父控件的信息
+        # parent_name = element.Parent.Name if element.Parent else None
+        # parent_class_name = element.Parent.ClassName if element.Parent else None
+        #
+        # if parent_name:
+        #     print(f"{indent}    ParentName: {parent_name}")
+        # if parent_class_name:
+        #     print(f"{indent}    ParentClassName: {parent_class_name}")
+
+        print(f"{indent}{prefix}" + "─" * 50)
+
+        # 获取当前控件的所有子控件
+        all_children = element.GetChildren()
+
+        # 递归调用，增加深度
+        for idx, child in enumerate(all_children):
+            self.PrintWindowInfo(child, depth + 1 if idx < len(all_children) - 1 else depth)
 
     def GetGroupMembers(self):
         """获取当前聊天群成员
