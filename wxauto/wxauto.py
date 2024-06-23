@@ -630,6 +630,36 @@ class WeChat(WeChatBase):
             else:
                 print("按钮[完成]无法点击")
 
+                # 初始化两个标志位
+            found_add_member = False
+            found_large_group_message = False
+
+            # 查找文本控件
+            text_controls = AddMemberWnd.TextControl()
+
+            # 正则表达式模式
+            pattern_add_member = re.compile(r"添加群成员")
+            pattern_large_group_message = re.compile(r"当前群聊人数较多")
+
+            for control in text_controls:
+                if re.search(pattern_add_member, control.Name):
+                    found_add_member = True
+                elif re.search(pattern_large_group_message, control.Name):
+                    found_large_group_message = True
+
+            if found_add_member and found_large_group_message:
+                try:
+                    bottom_queren = AddMemberWnd.ButtonControl(Name="确认")
+                    random_sleep()
+                    bottom_queren.Click(simulateMove=False)
+                except Exception as e:
+                    print(e)
+                    pyautogui.press('esc')
+                    pyautogui.press('esc')
+
+                return
+
+
             bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
             if bottom_quit.IsEnabled:
                 random_sleep()
