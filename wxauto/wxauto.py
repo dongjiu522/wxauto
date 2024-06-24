@@ -604,21 +604,22 @@ class WeChat(WeChatBase):
         finally:
             uia.SetGlobalSearchTimeout(10)
         random_sleep()
-        AddMemberWnd = self.UiaAPI.WindowControl(ClassName='AddMemberWnd', searchDepth=5)
+        AddMemberWnd = self.UiaAPI.WindowControl(ClassName='AddMemberWnd')
         #self.PrintWindowInfo(AddMemberWnd)
         SearchEdit = AddMemberWnd.EditControl(Name='搜索',searchDepth=10)
         try:
             #SetClipboardText(who)
             uia.SetGlobalSearchTimeout(1)
             rect = SearchEdit.BoundingRectangle
-            random_sleep()
+            #random_sleep()
             Click(rect)
-            SearchEdit.SendKeys(who, waitTime=1.5)
-        except:
-            pass
+            SearchEdit.SendKeys(who, waitTime=5)
+        except Exception as e:
+            print(e)
         finally:
             uia.SetGlobalSearchTimeout(10)
         #self.PrintWindowInfo(AddMemberWnd)
+        print("yhyh1234")
         try:
             AddMemberWnd.ListItemControl(Name=who).Click(simulateMove=False)
             #self.PrintWindowInfo(AddMemberWnd)
@@ -629,14 +630,29 @@ class WeChat(WeChatBase):
                 bottom_finish.Click(simulateMove=False)
             else:
                 print("按钮[完成]无法点击")
-
+            print("yhyh123")
                 # 初始化两个标志位
             found_add_member = False
             found_large_group_message = False
-
+            AddMemberWnd_queren = None
+            try:
             # 查找文本控件
-            text_controls = AddMemberWnd.TextControl()
-
+                AddMemberWnd_queren = AddMemberWnd.WindowControl(Name='微信')
+                #self.PrintWindowInfo(text_controls)
+            except Example as e:
+                print(e)
+                AddMemberWnd_queren = None
+            
+            if AddMemberWnd_queren:
+                try:
+                    bottom_queren = AddMemberWnd.ButtonControl(Name="确定")
+                    random_sleep()
+                    bottom_queren.Click(simulateMove=False)
+                except Exception as e:
+                    print(e)
+                    print("按钮[确认]无法点击")
+            
+            """
             # 正则表达式模式
             pattern_add_member = re.compile(r"添加群成员")
             pattern_large_group_message = re.compile(r"当前群聊人数较多")
@@ -646,7 +662,7 @@ class WeChat(WeChatBase):
                     found_add_member = True
                 elif re.search(pattern_large_group_message, control.Name):
                     found_large_group_message = True
-
+            print("found_add_member={},found_large_group_message={}".format(found_add_member,found_large_group_message))
             if found_add_member and found_large_group_message:
                 try:
                     bottom_queren = AddMemberWnd.ButtonControl(Name="确认")
@@ -654,20 +670,22 @@ class WeChat(WeChatBase):
                     bottom_queren.Click(simulateMove=False)
                 except Exception as e:
                     print(e)
-                    pyautogui.press('esc')
-                    pyautogui.press('esc')
-
+                    print("按钮[确认]无法点击")
                 return
-
-
-            bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
-            if bottom_quit.IsEnabled:
-                random_sleep()
-                bottom_quit.Click(simulateMove=False)
-            else:
-                print("按钮[取消]无法点击")
-                pyautogui.press('esc')
+            """
+            try:
+                bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
+                if bottom_quit.IsEnabled:
+                    random_sleep()
+                    bottom_quit.Click(simulateMove=False)
+                else:
+                    print("按钮[取消]无法点击")
+            except Exception as e:
+                print(e)
+                
         except Exception as e:
+            print(e)
+            """
             bottom_quit = AddMemberWnd.ButtonControl(Name="取消", searchDepth=10)
             if bottom_quit.IsEnabled:
                 random_sleep()
@@ -675,6 +693,10 @@ class WeChat(WeChatBase):
             else:
                 print("按钮[取消]无法点击")
                 pyautogui.press('esc')
+            """
+        finally:
+            pyautogui.press('esc')
+            pyautogui.press('esc')
 
 
     def PrintWindowInfo(self, element, depth=0):
